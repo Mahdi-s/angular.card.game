@@ -29,6 +29,11 @@ const loadGameState = () => {
   return JSON.parse(data);
 };
 
+// app.use((req, res, next) => {
+//   console.log(`Received ${req.method} request to ${req.url}`);
+//   next();
+// });
+
 function shuffleCards(cards) {
   const shuffledCards = [...cards];
   for (let i = shuffledCards.length - 1; i > 0; i--) {
@@ -37,6 +42,17 @@ function shuffleCards(cards) {
   }
   return shuffledCards.map((value, index) => ({ value, flipped: false, index }));
 }
+
+function createNewGame() {
+  return {
+    cards: shuffleCards(cards.concat(cards).slice(0, 20)),
+    playerTurn: Math.random() < 0.5 ? 0 : 1,
+    playerScores: [0, 0],
+    cumulativeScores: [0, 0],
+    gameOver: false,
+  };
+}
+
 
 app.get('/api/game', (req, res) => {
   const gameState = loadGameState();
@@ -47,7 +63,7 @@ app.post('/api/game', (req, res) => {
   const { cardIndices } = req.body;
   let gameState = loadGameState();
 
-  const { cards, playerTurn, playerScores, gameOver } = gameState;
+  const { cards, playerTurn, playerScores, cumulativeScores, gameOver } = gameState;
 
   if (!gameOver) {
     const flippedCards = cardIndices.map((index) => {
@@ -68,11 +84,13 @@ app.post('/api/game', (req, res) => {
       const remainingCards = newCards.filter((card) => !card.flipped);
 
       playerScores[playerTurn] += 1;
+      cumulativeScores[playerTurn] += 1;
 
       gameState = {
         cards: remainingCards,
-        playerTurn: playerTurn,
+        playerTurn: playerTurn, // Same player gets another turn
         playerScores,
+        cumulativeScores,
         gameOver: remainingCards.length === 0,
       };
     } else {
@@ -102,14 +120,19 @@ app.post('/api/game', (req, res) => {
   res.status(200).json(gameState);
 });
 
-app.post('/api/new-game', (req, res) => {
-  const initialGameState = {
-    cards: shuffleCards(cards.concat(cards).slice(0, 20)),
-    playerTurn: Math.random() < 0.5 ? 0 : 1,
-    playerScores: [0, 0],
-    gameOver: false,
-  };
+// Add a new endpoint to reset cumulative scores
+app.post('/api/game/reset-scores', (req, res) => {
+  let gameState = loadGameState();
+  gameState.cumulativeScores = [0, 0];
+  saveGameState(gameState);
+  res.status(200).json(gameState);
+});
+
+app.post('/api/game/new-game', (req, res) => {
+  console.log('Received request to start new game');
+  const initialGameState = createNewGame();
   saveGameState(initialGameState);
+  console.log('New game state created:', initialGameState);
   res.status(200).json(initialGameState);
 });
 
