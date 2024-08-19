@@ -1,25 +1,29 @@
 <div class="game-container" *ngIf="gameState">
-    <div class="game-info">
-      <div class="scores">
+  <div class="game-info">
+    <div class="info-column">
+      <div class="score-box">
         <p>Player 1 Score: {{ gameState.playerScores[0] }}</p>
         <p>Player 2 Score: {{ gameState.playerScores[1] }}</p>
-        <button (click)="restartGame()">Restart Game</button>
       </div>
+      <button (click)="restartGame()">Restart Game</button>
+    </div>
+    <div class="turn-box" [ngClass]="{'player1': gameState.currentPlayer === 0, 'player2': gameState.currentPlayer === 1}">
       <p>Current Turn: Player {{ gameState.currentPlayer + 1 }}</p>
     </div>
-    <div class="card-grid">
-      <div *ngFor="let card of gameState.cards; let i = index" 
-           class="card" 
-           [class.flipped]="card.flipped"
-           (click)="flipCard(i)">
-        <div class="card-inner">
-          <div class="card-front">
-            <img [src]="'assets/cards/back.png'" alt="Card back">
-          </div>
-          <div class="card-back">
-            <img [src]="getCardImagePath(card)" alt="Card front">
-          </div>
+  </div>
+  <div class="card-grid">
+    <div *ngFor="let card of gameState.cards; let i = index" 
+         class="card" 
+         [class.flipped]="card.flipped"
+         (click)="flipCard(i)">
+      <div class="card-inner">
+        <div class="card-front">
+          <img [src]="'assets/cards/back.png'" alt="Card back">
+        </div>
+        <div class="card-back">
+          <img [src]="getCardImagePath(card)" alt="Card front">
         </div>
       </div>
     </div>
   </div>
+</div>
