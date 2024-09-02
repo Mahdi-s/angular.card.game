@@ -53,3 +53,5 @@
 
 - Ensure both the backend and frontend servers are running simultaneously for the game to function properly.
 - The backend serves the game state and logic, while the frontend handles the user interface and interactions.
+
+Happy Gaming!
